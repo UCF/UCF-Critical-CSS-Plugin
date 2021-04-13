@@ -1,8 +1,8 @@
 <!---
-Thank you for contributing to {{My-Project}}.
+Thank you for contributing to UCF-Critical-CSS-Plugin.
 
 Please make sure you've read our contributing guidelines:
-https://github.com/UCF/{{My-Project}}/blob/master/CONTRIBUTING.md
+https://github.com/UCF/UCF-Critical-CSS-Plugin/blob/master/CONTRIBUTING.md
 
 Provide a general summary of your changes in the Title above and fill in the template below.
 -->
