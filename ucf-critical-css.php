@@ -20,6 +20,13 @@ namespace UCF\Critical_CSS {
 
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'admin/config.php';
 
+	/**
+	 * Main entry function for the plugin.
+	 * All actions and filters should be registered here
+	 * @author Jim Barnes
+	 * @since 0.1.0
+	 * @return void
+	 */
 	function plugin_init() {
 		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 20, 0 );
 	}
