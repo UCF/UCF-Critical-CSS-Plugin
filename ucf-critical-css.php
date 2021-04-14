@@ -10,8 +10,6 @@ GitHub Plugin URI: UCF/UCF-Critical-CSS-Plugin
 
 namespace UCF\Critical_CSS {
 
-	use UCF\Critical_CSS\Admin;
-
 	if ( ! defined( 'WPINC' ) ) {
 		die;
 	}
