@@ -34,7 +34,8 @@ namespace UCF\Critical_CSS\Admin {
 			if ( ! $enabled_taxonomies ) return;
 
 			foreach( $enabled_taxonomies as $tax ) {
-				add_action( "edit_$tax", array( __NAMESPACE__ . '\Utilities', 'on_edit_term' ), 10, 2 );
+				add_action( "create_$tax", array( __NAMESPACE__ . '\Utilities', 'on_edit_taxonomy' ), 10, 2 );
+				add_action( "edit_$tax", array( __NAMESPACE__ . '\Utilities', 'on_edit_taxonomy' ), 10, 2 );
 			}
 		}
 	}

@@ -13,11 +13,26 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_save_post( $post_id, $post ) {
-			self::request_object_critical_css( $post );
+			$generate = get_field( 'enable_critical_css_generation', 'option' );
+
+			if ( $generate ) {
+				self::request_object_critical_css( $post );
+			}
 		}
 
-		public static function on_edit_term( $term_id, $term ) {
-			self::request_object_critical_css( $term, true );
+		/**
+		 * Function to use for the edit_taxonomy hook.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param int $post_id The ID of the post.
+		 * @param WP_Post $post The post object
+		 */
+		public static function on_edit_taxonomy( $term_id, $term ) {
+			$generate = get_field( 'enable_critical_css_generation', 'option' );
+
+			if ( $generate ) {
+				self::request_object_critical_css( $term, true );
+			}
 		}
 
 		/**
@@ -51,7 +66,7 @@ namespace UCF\Critical_CSS\Admin {
 			$meta = array(
 				'response_url' => '', // The url of the API. Leaving blank for now.
 				'job_type'     => 'object', // We'll look for specific things for this job type
-				'object_type'  => $is_term ? 'term', 'post',
+				'object_type'  => $is_term ? 'term' : 'post',
 				'object_id'    => $is_term ? $object->term_id : $object->ID
 			);
 
@@ -93,7 +108,7 @@ namespace UCF\Critical_CSS\Admin {
 
 			$retval['args'] = array(
 				'dimensions' => $dimensions_formatted,
-				'html'       => $html
+				'html'       => $html,
 				'meta'       => $meta
 			);
 
