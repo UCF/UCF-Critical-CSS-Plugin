@@ -157,7 +157,7 @@ link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 				'collapsed'     => 'ucfccss_dimensions_width',
 				'min'           => 1,
 				'max'           => 10,
-				'layout'        => 'row',
+				'layout'        => 'table',
 				'button_label'  => 'Add Dimension',
 				'sub_fields'    => $dimension_sub_fields
 			);
