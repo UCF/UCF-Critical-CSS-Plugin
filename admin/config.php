@@ -4,324 +4,244 @@ namespace UCF\Critical_CSS\Admin {
 	 * Defines the plugin settings
 	 */
 	class Config {
-		public static
-			$option_prefix = 'ucf_critical_css_',
-			$option_defaults = array(
-				'enable_deferred_css'        => false
-			);
-
-		/**
-		 * Creates options via the WP Options API.
-		 * Meant to be run on plugin activation
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @return void
-		 */
-		public static function add_options() {
-			$defaults = self::$option_defaults;
-
-			// Add all options that have defaults
-			foreach( $defaults as $short_name => $default_val ) {
-				add_option(
-					self::$option_prefix . $short_name,
-					$default_val
-				);
-			}
-
-			// Manually add other options below
-		}
-
-		/**
-		 * Deletes options via the WP Options API.
-		 * Meant to be run on deactivation.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @return void
-		 */
-		public static function delete_options() {
-			$defaults = self::$option_defaults;
-
-			// Delete all options that have defaults
-			foreach( $defaults as $short_name => $default_val ) {
-				delete_option( self::$option_prefix . $short_name );
-			}
-
-			// Manually delete other options below
-		}
-
-		/**
-		 * Returns a list of default plugin options. Applies any overridden
-		 * default values set within the options page.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @return void
-		 */
-		public static function get_option_defaults() {
-			$defaults = self::$option_defaults;
-
-			$configurable_defaults = array();
-
-			foreach( $defaults as $short_name => $default_val ) {
-				$configurable_defaults[$short_name] = get_option( self::$option_prefix . $short_name );
-			}
-
-			$configurable_defaults = self::format_options( $configurable_defaults );
-
-			$defaults = array_merge( $defaults, $configurable_defaults );
-
-			return $defaults;
-		}
-
-		/**
-		 * Returns an array with plugin defaults applied.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @param array $list
-		 * @param bool $list_keys_only Modifies results to only return array key
-		 *                             values present in $list.
-		 * @return array
-		 */
-		public static function apply_option_defaults( $list, $list_keys_only = false ) {
-			$defaults = self::get_option_defaults();
-			$options = array();
-
-			if ( $list_keys_only ) {
-				foreach( $list as $key=>$val ) {
-					$options[$key] = ! empty( $val ) ? $val : $defaults[$key];
-				}
-			} else {
-				$options = array_merge( $defaults, $list );
-			}
-
-			$options = self::format_options( $options );
-
-			return $options;
-		}
-
-		/**
-		 * Performs typecasting, sanitization, etc on an array of plugin options.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @param array $list
-		 * @return array
-		 */
-		public static function format_options( $list ) {
-			foreach( $list as $key => $val ) {
-				switch( $key ) {
-					case 'enable_deferred_css':
-						$list[$key] = filter_var( $val, FILTER_VALIDATE_BOOLEAN );
-					default:
-						break;
-				}
-			}
-
-			return $list;
-		}
-
-		/**
-		 * Applies formatting to a single option. Intended to be passed to the
-		 * option_{$option} hook.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @param mixed $value The value to be formatted
-		 * @param string $option_name The name of the option to be formatted
-		 * @return mixed
-		 */
-		public static function format_option( $value, $option_name ) {
-			$option_name_no_prefix = str_replace( self::$option_prefix, '', $option_name );
-
-			$option_formatted = self::format_options( array( $option_name_no_prefix => $value ) );
-			return $option_formatted[$option_name_no_prefix];
-		}
-
-		/**
-		 * Adds filters for plugin options that apply
-		 * out formatting rules to option values.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @return void
-		 */
-		public static function add_option_formatting_filters() {
-			$defaults = self::$option_defaults;
-
-			foreach( $defaults as $option => $default ) {
-				$option_name = self::$option_prefix . $option;
-				add_filter( "option_{$option_name}", array( __NAMESPACE__ . '\Config', 'format_option' ), 10, 2 );
-			}
-		}
-
-		/**
-		 * Utility method for returning an option from the WP Options API
-		 * or a plugin option default.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @param $option_name The name of the option to get
-		 * @return mixed
-		 */
-		public static function get_option_or_default( $option_name ) {
-			$option_name_no_prefix = str_replace( self::$option_prefix, '', $option_name );
-			$option_name = self::$option_prefix . $option_name_no_prefix;
-
-			$option = get_option( $option_name );
-			$option_formatted = self::apply_option_defaults( array(
-				$option_name_no_prefix => $option
-			), true );
-
-			return $option_formatted[$option_name_no_prefix];
-		}
-
-		public static function settings_init() {
-			$settings_slug = 'ucf_critical_css';
-			$defaults = self::$option_defaults;
-			$display_fn = array( __NAMESPACE__ . '\Config', 'display_settings_field' );
-
-			foreach( $defaults as $name => $value ) {
-				register_setting(
-					$settings_slug,
-					self::$option_prefix . $name
-				);
-			}
-
-			/**
-			 * Sections are registered here
-			 */
-			add_settings_section(
-				$settings_slug . '_general',
-				__( 'General' ),
-				'',
-				$settings_slug
-			);
-
-
-			/**
-			 * Fields are registered here
-			 */
-			add_settings_field(
-				self::$option_prefix . 'enable_deferred_css', // Setting Name
-				'Enable Deferred CSS Styles',                 // Setting Label
-				$display_fn,                                  // Display Function
-				$settings_slug,                               // The settings page slug
-				$settings_slug . '_general',                  // The section slug
-				array(
-					'label_for'   => self::$option_prefix . 'enable_deferred_css',
-					'description' => 'When checked, deferred styles will be used on eligible pages.',
-					'type'        => 'checkbox'
-				)
-			);
-		}
-
-		/**
-		 * Displays an individual setting's field markup.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @param array $args The arguments for the field
-		 * @return string The field markup
-		 */
-		public static function display_settings_field( $args ) {
-			$option_name   = $args['label_for'];
-			$description   = $args['description'];
-			$field_type    = $args['type'];
-			$options       = isset ( $args['options'] ) ? $args['options'] : null;
-			$current_value = self::get_option_or_default( $option_name );
-			$markup        = '';
-
-			switch( $field_type ) {
-				case 'checkbox':
-					ob_start();
-				?>
-					<p>Here's some markup</p>
-					<input type="checkbox" id="<?php echo $option_name; ?>" name="<?php echo $option_name; ?>" <?php echo ( $current_value == true ) ? 'checked' : ''; ?>>
-					<p class="description">
-						<?php echo $description; ?>
-					</p>
-				<?php
-					$markup = ob_get_clean();
-					break;
-				case 'number':
-					ob_start();
-				?>
-					<input type="number" id="<?php echo $option_name; ?>" name="<?php echo $option_name; ?>" value="<?php echo $current_value; ?>">
-					<p class="description">
-						<?php echo $description; ?>
-					</p>
-				<?php
-					$markup = ob_get_clean();
-					break;
-				case 'select':
-					ob_start();
-				?>
-					<?php if ( $options ) : ?>
-					<select id="<?php echo $option_name; ?>" name="<?php echo $option_name; ?>">
-						<?php foreach ( $options as $value => $text ) : ?>
-							<option value="<?php echo $value; ?>" <?php echo ( ( $current_value === false && $value === '' ) || ( $current_value === $value ) ) ? 'selected' : ''; ?>><?php echo $text; ?></option>
-						<?php endforeach; ?>
-					</select>
-					<?php else: ?>
-					<p style="color: #d54e21;">There was an error retrieving the choices for this field.</p>
-					<?php endif; ?>
-					<p class="description">
-						<?php echo $description; ?>
-					</p>
-				<?php
-					$markup = ob_get_clean();
-					break;
-				case 'text':
-				default:
-					ob_start();
-				?>
-					<input type="text" id="<?php echo $option_name; ?>" name="<?php echo $option_name; ?>" value="<?php echo $current_value; ?>">
-					<p class="description">
-						<?php echo $description; ?>
-					</p>
-				<?php
-					$markup = ob_get_clean();
-					break;
-			}
-
-			echo $markup;
-		}
-
-		/**
-		 * Registers the settings page ti display in the WordPress admin.
-		 * @author Jim Barnes
-		 * @since 0.1.0
-		 * @return string The resulting page's hook suffix.
-		 */
 		public static function add_options_page() {
-			$page_title = 'UCF Critical CSS Settings';
-			$menu_title = 'UCF Critical CSS';
-			$capability = 'manage_options';
-			$menu_slug  = 'ucf_critical_css';
-			$callback   = array(
-				__NAMESPACE__ . '\Config',
-				'options_page_html'
-			);
+			if ( function_exists( 'acf_add_options_sub_page' ) ) {
+				$option_page = acf_add_options_page( array(
+					'page_title'  => __( 'UCF Critical CSS Settings' ),
+					'menu_title'  => __( 'UCF Critical CSS' ),
+					'menu_slug'   => 'ucf-critical-css',
+					'parent_slug' => 'options-general.php',
+					'capability'  => 'manage_options',
+					'redirect'    => false
+				) );
 
-			return add_options_page(
-				$page_title,
-				$menu_title,
-				$capability,
-				$menu_slug,
-				$callback
-			);
+				self::add_options_page_fields();
+
+			} else {
+				add_action( 'admin_notices', array( __NAMESPACE__ . '\Config', 'no_acf_admin_notice' ) );
+			}
 		}
 
-		public static function options_page_html() {
+		public static function add_options_page_fields() {
+			if ( ! function_exists( 'acf_add_local_field_group' ) ) return;
+
+			$fields = array();
+
+			/**
+			 * General Fields
+			 */
+			$fields[] = array(
+				'key'           => 'ucfccss_general_settings_tab',
+				'label'         => 'General Settings',
+				'type'          => 'tab'
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_enable_deferred_styles_global',
+				'label'         => 'Enable Deferred Styles',
+				'name'          => 'enable_deferred_styles_global',
+				'type'          => 'true_false',
+				'instructions'  => 'When enabled, all styles will be deferred whenever critical CSS is present on a post/page or if the style has been whitelisted.',
+				'default_value' => 0,
+				'ui'            => 1,
+				'ui_on_text'    => 'Enabled',
+				'ui_off_text'   => 'Disabled'
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_allowed_post_types',
+				'label'         => 'Allowed Post Types',
+				'name'          => 'allowed_post_types',
+				'type'          => 'select',
+				'instructions'  => 'Choose the post types for which styles should be deferred.',
+				'choices'       => self::post_types_as_options(),
+				'allow_null'    => 0,
+				'multiple'      => 1,
+				'ui'            => 1,
+				'ajax'          => 1
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_allowed_taxonomies',
+				'label'         => 'Allowed Taxonomies',
+				'name'          => 'allowed_taxonomies',
+				'type'          => 'select',
+				'instructions'  => 'Choose the taxonomies that allow critical CSS generation.',
+				'choices'       => self::taxonomies_as_options(),
+				'allow_null'    => 0,
+				'multiple'      => 1,
+				'ui'            => 1,
+				'ajax'          => 1
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_deferred_exceptions',
+				'label'         => 'Deferred Exceptions',
+				'name'          => 'deferred_exceptions',
+				'type'          => 'textarea',
+				'instructions'  => 'Enter the handles of each stylesheet which should not be deferred, one handle per line.'
+			);
+
+			/**
+			 * Critical CSS Generation Fields
+			 */
+			$fields[] = array(
+				'key'           => 'ucfccss_critical_css_tab',
+				'label'         => 'Critical CSS Generation',
+				'type'          => 'tab'
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_enable_critical_css_generation',
+				'label'         => 'Enable Critical CSS Generation',
+				'name'          => 'enable_critical_css_generation',
+				'type'          => 'true_false',
+				'instructions'  => 'When enabled, this plugin will automatically generate critical CSS for eligible posts automatically.',
+				'default_value' => 0,
+				'ui'            => 1,
+				'ui_on_text'    => 'Enabled',
+				'ui_off_text'   => 'Disabled'
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_critical_css_service_url',
+				'label'         => 'Critical CSS Service URL',
+				'name'          => 'critical_css_service_url',
+				'type'          => 'url',
+				'instructions'  => 'Enter the URL of the critical CSS service.'
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_excluded_css_selectors',
+				'label'         => 'Excluded CSS Selectors',
+				'name'          => 'excluded_css_selectors',
+				'type'          => 'textarea',
+				'instructions'  => 'WE NEED SOME DETAILED INSTRUCTIONS HERE',
+				'default_value' => 'style#critical-css
+link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
+			);
+
+			/**
+			 * Define the sub fields for the dimension repeater
+			 */
+			$dimension_sub_fields = array();
+
+			$dimension_sub_fields[] = array(
+				'key'           => 'ucfccss_dimensions_width',
+				'label'         => 'Width',
+				'name'          => 'width',
+				'type'          => 'number',
+				'instructions'  => 'The width of the viewport.',
+				'required'      => 1
+			);
+
+			$dimension_sub_fields[] = array(
+				'key'           => 'ucfccss_dimensions_height',
+				'label'         => 'Height',
+				'name'          => 'height',
+				'type'          => 'number',
+				'instructions'  => 'The height of the viewport.',
+				'required'      => 1
+			);
+
+			/**
+			 * The dimensions repeater
+			 */
+			$fields[] = array(
+				'key'           => 'ucfccss_critical_css_dimensions',
+				'label'         => 'Critical CSS Dimensions',
+				'name'          => 'critical_css_dimensions',
+				'type'          => 'repeater',
+				'instructions'  => 'Define the dimensions that Critical should use when generating the critical CSS. The dimensions should correspond with the common viewports based on the theme.',
+				'required'      => 1,
+				'collapsed'     => 'ucfccss_dimensions_width',
+				'min'           => 1,
+				'max'           => 10,
+				'layout'        => 'row',
+				'button_label'  => 'Add Dimension',
+				'sub_fields'    => $dimension_sub_fields
+			);
+
+			$group = array(
+				'key'      => 'ucfccss_settings_fields',
+				'title'    => 'UCF Critical CSS Settings Fields',
+				'fields'   => $fields,
+				'location' => array(
+					array(
+						array(
+							'param'    => 'options_page',
+							'operator' => '==',
+							'value'    => 'ucf-critical-css'
+						)
+					)
+				),
+				'style'    => 'seamless'
+			);
+
+			acf_add_local_field_group( $group );
+		}
+
+		/**
+		 * Returns registered post_types as a list
+		 * of options for an ACF select field.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @return array
+		 */
+		public static function post_types_as_options() {
+			$retval = array();
+
+			$args = array(
+				'public' => true
+			);
+
+			$post_types = get_post_types( $args, 'objects' );
+
+			foreach( $post_types as $post_type ) {
+				$retval[$post_type->name] = $post_type->label;
+			}
+
+			return $retval;
+		}
+
+		/**
+		 * Returns registered taxonomies as a list
+		 * of options for an ACF select field.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @return array
+		 */
+		public static function taxonomies_as_options() {
+			$retval = array();
+
+			$args = array(
+				'public' => true
+			);
+
+			$taxonomies = get_taxonomies( $args, 'objects' );
+
+			foreach( $taxonomies as $tax ) {
+				$retval[$tax->name] = $tax->label;
+			}
+
+			return $retval;
+		}
+
+		/**
+		 * Admin notice to display when ACF is not installed
+		 * and enabled.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @return void
+		 */
+		public static function no_acf_admin_notice() {
 			ob_start();
-			var_dump( 'What\'s going on?!' );
 		?>
-			<div class="wrap">
-				<h1><?php echo get_admin_page_title(); ?></h1>
-				<form method="post" action="options.php">
-					<?php
-						settings_fields( 'ucf_critical_css' );
-						do_settings_sections( 'ucf_critical_css' );
-						submit_button();
-					?>
-				</form>
+			<div class="notice notice-error is-dismissible">
+				<p>The UCF Critical CSS Plugin requires ACF Pro. Please, install the plugin.</p>
 			</div>
 		<?php
-			return ob_get_clean();
+			echo ob_get_clean();
 		}
 	}
 }

@@ -35,9 +35,7 @@ namespace UCF\Critical_CSS {
 	register_deactivation_hook( UCF_CRITICAL_CSS__PLUGIN_FILE, __NAMESPACE__ . '\plugin_deactivation' );
 
 	function plugin_init() {
-		add_action( 'admin_init', array( 'UCF\Critical_CSS\Admin\Config', 'settings_init' ) );
-		add_action( 'admin_menu', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ) );
-		Admin\Config::add_option_formatting_filters();
+		add_action( 'acf/init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ) );
 	}
 
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init' );
