@@ -13,11 +13,7 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_save_post( $post_id, $post ) {
-			$generate = get_field( 'enable_critical_css_generation', 'option' );
-
-			if ( $generate ) {
-				self::request_object_critical_css( $post );
-			}
+			self::request_object_critical_css( $post );
 		}
 
 		/**
@@ -28,11 +24,7 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_edit_taxonomy( $term_id, $term ) {
-			$generate = get_field( 'enable_critical_css_generation', 'option' );
-
-			if ( $generate ) {
-				self::request_object_critical_css( $term, true );
-			}
+			self::request_object_critical_css( $term, true );
 		}
 
 		/**

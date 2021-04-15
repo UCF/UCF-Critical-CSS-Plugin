@@ -13,8 +13,9 @@ namespace UCF\Critical_CSS\Admin {
 		 */
 		public static function save_post_actions() {
 			$enabled_post_types = get_field( 'allowed_post_types', 'option' );
+			$generate = get_field( 'enable_critical_css_generation', 'option' );
 
-			if ( ! $enabled_post_types ) return;
+			if ( ! $enabled_post_types || $generate === false ) return;
 
 			foreach( $enabled_post_types as $post_type ) {
 				add_action( "save_post_$post_type", array( __NAMESPACE__ . "\Utilities", 'on_save_post' ), 10, 2 );
@@ -30,8 +31,9 @@ namespace UCF\Critical_CSS\Admin {
 		 */
 		 public static function edit_term_actions() {
 			$enabled_taxonomies = get_field( 'allowed_taxonomies', 'option' );
+			$generate = get_field( 'enable_critical_css_generation', 'option' );
 
-			if ( ! $enabled_taxonomies ) return;
+			if ( ! $enabled_taxonomies || $generate === false ) return;
 
 			foreach( $enabled_taxonomies as $tax ) {
 				add_action( "create_$tax", array( __NAMESPACE__ . '\Utilities', 'on_edit_taxonomy' ), 10, 2 );
