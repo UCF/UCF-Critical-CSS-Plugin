@@ -4,6 +4,12 @@ namespace UCF\Critical_CSS\Admin {
 	 * Defines the plugin settings
 	 */
 	class Config {
+		/**
+		 * Adds the options page for the critical CSS settings
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @return void
+		 */
 		public static function add_options_page() {
 			if ( function_exists( 'acf_add_options_sub_page' ) ) {
 				$option_page = acf_add_options_page( array(
@@ -22,6 +28,13 @@ namespace UCF\Critical_CSS\Admin {
 			}
 		}
 
+		/**
+		 * Registers the ACF fields for the
+		 * Critical CSS options page
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @return void
+		 */
 		public static function add_options_page_fields() {
 			if ( ! function_exists( 'acf_add_local_field_group' ) ) return;
 
