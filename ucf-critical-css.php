@@ -28,6 +28,8 @@ namespace UCF\Critical_CSS {
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/deferred-styles.php';
 
 
+	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'api/api.php';
+
 	/**
 	 * Main entry function for the plugin.
 	 * All actions and filters should be registered here
@@ -39,8 +41,10 @@ namespace UCF\Critical_CSS {
 		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 20, 0 );
 
 		// Register our dynamic filters and actions
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ), 10, 0 );
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'edit_term_actions' ), 10, 0 );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ) );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'edit_term_actions' ) );
+
+		add_action( 'rest_api_init', array( 'UCF\Critical_CSS\API\Critical_CSS_API', 'register_rest_routes' ) );
 
 		if ( Deferred_Styles\enabled_globally() ) {
 			add_action( 'wp_head', 'UCF\Critical_CSS\Includes\Critical_CSS\insert_in_head', 1 );
