@@ -13,11 +13,7 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_save_post( $post_id, $post ) {
-			$generate = get_field( 'enable_critical_css_generation', 'option' );
-
-			if ( $generate ) {
-				self::request_object_critical_css( $post );
-			}
+			self::request_object_critical_css( $post );
 		}
 
 		/**
@@ -28,11 +24,7 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_edit_taxonomy( $term_id, $term ) {
-			$generate = get_field( 'enable_critical_css_generation', 'option' );
-
-			if ( $generate ) {
-				self::request_object_critical_css( $term, true );
-			}
+			self::request_object_critical_css( $term, true );
 		}
 
 		/**
@@ -70,7 +62,15 @@ namespace UCF\Critical_CSS\Admin {
 				'object_id'    => $is_term ? $object->term_id : $object->ID
 			);
 
-			$request_body = self::build_critical_css_request( $html, $meta );
+			/**
+			 * If the HTML is more than 64kb, set it to null. The URL will be
+			 * used instead for the critical process.
+			 */
+			if ( strlen( $html ) >= UCF_CRITICAL_CSS__MAX_MSG_SIZE ) {
+				$html = null;
+			}
+
+			$request_body = self::build_critical_css_request( $html, $url, $meta );
 			$request_url = get_field( 'critical_css_service_url', 'option' );
 
 			$response = wp_remote_post( $request_url, array(
@@ -89,7 +89,7 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param string $html The HTML to be processed
 		 * @return string
 		 */
-		private static function build_critical_css_request( $html, $meta ) {
+		private static function build_critical_css_request( $html, $url, $meta ) {
 			$retval = array();
 
 			$exclude = get_field( 'excluded_css_selectors', 'option' );
@@ -109,7 +109,8 @@ namespace UCF\Critical_CSS\Admin {
 			$retval['args'] = array(
 				'dimensions' => $dimensions_formatted,
 				'html'       => $html,
-				'meta'       => $meta
+				'meta'       => $meta,
+				'url'        => $url
 			);
 
 			if ( $exclude ) {
