@@ -56,8 +56,7 @@ namespace UCF\Critical_CSS\Admin {
 			$html = wp_remote_retrieve_body( $response );
 
 			$meta = array(
-				'response_url' => '', // The url of the API. Leaving blank for now.
-				'job_type'     => 'object', // We'll look for specific things for this job type
+				'response_url' => get_rest_url( null, 'ucfccss/v1/update/single/' ), // The url of the API. Leaving blank for now.
 				'object_type'  => $is_term ? 'term' : 'post',
 				'object_id'    => $is_term ? $object->term_id : $object->ID
 			);
