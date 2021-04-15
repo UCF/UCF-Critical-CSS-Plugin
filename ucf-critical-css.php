@@ -17,6 +17,7 @@ namespace UCF\Critical_CSS {
 	define( 'UCF_CRITICAL_CSS__PLUGIN_URL', plugins_url( basename( dirname( __FILE__ ) ) ) );
 	define( 'UCF_CRITICAL_CSS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'UCF_CRITICAL_CSS__PLUGIN_FILE', __FILE__ );
+	define( 'UCF_CRITICAL_CSS__MAX_MSG_SIZE', 64000 );
 
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'admin/config.php';
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'admin/actions.php';
