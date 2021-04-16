@@ -108,6 +108,9 @@ namespace UCF\Critical_CSS\API {
 				);
 			}
 
+			// Delete the transient
+			delete_transient( $csrf );
+
 			if ( $success === false ) {
 				$retval['result'] = 'error';
 				$retval['message'] = "There was an error updating the $object_type meta";
