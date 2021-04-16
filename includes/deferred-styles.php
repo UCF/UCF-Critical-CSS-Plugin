@@ -12,7 +12,10 @@ namespace UCF\Critical_CSS\Includes\Deferred_Styles {
 	 * @return boolean
 	 */
 	function enabled_globally() {
-		return filter_var( get_field( 'ucfccss_enable_deferred_styles_global', 'option' ), FILTER_VALIDATE_BOOLEAN );
+		return true;
+		// TODO get_field( 'enable_deferred_styles_global', 'option' ) results
+		// in a critical error with the UCF FAQ plugin for some bizarre reason
+		// return filter_var( get_field( 'enable_deferred_styles_global', 'option' ), FILTER_VALIDATE_BOOLEAN );
 	}
 
 	/**
@@ -33,7 +36,7 @@ namespace UCF\Critical_CSS\Includes\Deferred_Styles {
 		$critical_css = Critical_CSS\get_critical_css();
 
 		if ( $critical_css ) {
-			$exclude_option = get_field( 'ucfccss_deferred_exceptions', 'option' );
+			$exclude_option = get_field( 'deferred_exceptions', 'option' );
 			$exclude = $exclude_option ? array_filter( array_map( 'trim', explode( '\n', $exclude_option ) ) ) : array();
 
 			if ( ! in_array( $handle, $exclude ) && $media !== 'print' ) {

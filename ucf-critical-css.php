@@ -48,7 +48,7 @@ namespace UCF\Critical_CSS {
 
 		if ( Deferred_Styles\enabled_globally() ) {
 			add_action( 'wp_head', 'UCF\Critical_CSS\Includes\Critical_CSS\insert_in_head', 1 );
-			add_action( 'style_loader_tag', 'UCF\Critical_CSS\Includes\Deferred_Styles\async_enqueued_styles', 99, 4 );
+			add_action( 'style_loader_tag', 'UCF\Critical_CSS\Includes\Deferred_Styles\defer_enqueued_styles', 99, 4 );
 		}
 	}
 
