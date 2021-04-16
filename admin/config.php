@@ -61,6 +61,122 @@ namespace UCF\Critical_CSS\Admin {
 				'ui_off_text'   => 'Disabled'
 			);
 
+			// Define the subfields for the deferment rules
+			$deferred_rules_subfields = array();
+
+			$deferred_rules_subfields[] = array(
+				'key'           => 'ucfccss_deferred_rules_rule_type',
+				'label'         => 'Rule Type',
+				'name'          => 'rule_type',
+				'type'          => 'select',
+				'instructions'  => 'Select the type of rule to create',
+				'choices'       => array(
+					'individual' => 'Individual Page CSS',
+					'template'   => 'Template Based CSS'
+				),
+				'allow_null'    => 0,
+				'multiple'      => 0
+			);
+
+			$deferred_rules_subfields[] = array(
+				'key'           => 'ucfccss_deferred_rules_object_type',
+				'label'         => 'Object Type',
+				'name'          => 'object_type',
+				'type'          => 'select',
+				'instructions'  => 'Select the object type to apply this rule to',
+				'choices'       => array(
+					'post_type' => 'Post Type',
+					'taxonomy'  => 'Taxonomy',
+					'template'  => 'Template'
+				),
+				'allow_null'    => 0,
+				'multiple'      => 0
+			);
+
+			$deferred_rules_subfields[] = array(
+				'key'               => 'ucfccss_deferred_rules_post_type',
+				'label'             => 'Post Types',
+				'name'              => 'post_types',
+				'type'              => 'select',
+				'instructions'      => 'Choose the post types to apply this rule to',
+				'choices'           => self::post_types_as_options(),
+				'default_value'     => false,
+				'allow_null'        => 0,
+				'multiple'          => 1,
+				'ui'                => 1,
+				'ajax'              => 1,
+				'conditional_logic' => array(
+					array(
+						array(
+							'field'    => 'ucfccss_deferred_rules_object_type',
+							'operator' => '==',
+							'value'    => 'post_type'
+						)
+					)
+				)
+			);
+
+			$deferred_rules_subfields[] = array(
+				'key'               => 'ucfccss_deferred_rules_taxonomies',
+				'label'             => 'Taxonomies',
+				'name'              => 'taxonomies',
+				'type'              => 'select',
+				'instructions'      => 'Choose the taxonomies to apply this rule to',
+				'default_value'     => false,
+				'choices'           => self::taxonomies_as_options(),
+				'default_value'     => false,
+				'allow_null'        => 0,
+				'multiple'          => 1,
+				'ui'                => 1,
+				'ajax'              => 1,
+				'conditional_logic' => array(
+					array(
+						array(
+							'field'    => 'ucfccss_deferred_rules_object_type',
+							'operator' => '==',
+							'value'    => 'taxonomy'
+						)
+					)
+				)
+			);
+
+			$deferred_rules_subfields[] = array(
+				'key'               => 'ucfccss_deferred_rules_templates',
+				'label'             => 'Templates',
+				'name'              => 'templates',
+				'type'              => 'select',
+				'instructions'      => 'Choose the templates to apply this rule to',
+				'default_value'     => false,
+				'choices'           => self::templates_as_options(),
+				'allow_null'        => 0,
+				'multiple'          => 1,
+				'ui'                => 1,
+				'ajax'              => 1,
+				'conditional_logic' => array(
+					array(
+						array(
+							'field'    => 'ucfccss_deferred_rules_object_type',
+							'operator' => '==',
+							'value'    => 'template'
+						)
+					)
+				)
+			);
+
+			$fields[] = array(
+				'key'           => 'ucfccss_deferred_rules',
+				'label'         => 'Deferred Rules',
+				'name'          => 'ucfccss_deferred_rules',
+				'type'          => 'repeater',
+				'instructions'  => 'The following rules determine when CSS will be deferred and critical CSS generated and inserted, when that feature is active.',
+				'sub_fields'    => $deferred_rules_subfields,
+				'collapsed'     => 'ucfccss_deferred_rules_rule_type',
+				'min'           => 1,
+				'max'           => 10,
+				'layout'        => 'row',
+				'button_label'  => 'Add Rule',
+			);
+
 			$fields[] = array(
 				'key'           => 'ucfccss_allowed_post_types',
 				'label'         => 'Allowed Post Types',
@@ -243,6 +359,27 @@ link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 
 			foreach( $taxonomies as $tax ) {
 				$retval[$tax->name] = $tax->label;
+			}
+
+			return $retval;
+		}
+
+		/**
+		 * Endeavors to collect all the available templates
+		 * on the theme to return as options.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @return array
+		 */
+		public static function templates_as_options() {
+			$retval = array();
+
+			foreach( self::post_types_as_options() as $post_type => $post_type_label ) {
+				$templates = wp_get_theme()->get_page_templates( null, $post_type );
+
+				foreach( $templates as $template_name => $template_filename ) {
+					$retval[$template_filename] = $template_name;
+				}
 			}
 
 			return $retval;
