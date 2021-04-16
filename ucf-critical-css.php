@@ -17,8 +17,13 @@ namespace UCF\Critical_CSS {
 	define( 'UCF_CRITICAL_CSS__PLUGIN_URL', plugins_url( basename( dirname( __FILE__ ) ) ) );
 	define( 'UCF_CRITICAL_CSS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'UCF_CRITICAL_CSS__PLUGIN_FILE', __FILE__ );
+	define( 'UCF_CRITICAL_CSS__MAX_MSG_SIZE', 64000 );
 
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'admin/config.php';
+	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'admin/actions.php';
+	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'admin/utils.php';
+
+	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'api/api.php';
 
 	/**
 	 * Main entry function for the plugin.
@@ -29,6 +34,13 @@ namespace UCF\Critical_CSS {
 	 */
 	function plugin_init() {
 		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 20, 0 );
+
+		// Register our dynamic filters and actions
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ) );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'edit_term_actions' ) );
+
+		add_action( 'rest_api_init', array( 'UCF\Critical_CSS\API\Critical_CSS_API', 'register_rest_routes' ) );
+
 	}
 
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init' );

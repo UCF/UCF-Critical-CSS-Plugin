@@ -125,6 +125,14 @@ namespace UCF\Critical_CSS\Admin {
 			);
 
 			$fields[] = array(
+				'key'           => 'ucfccss_critical_css_service_key',
+				'label'         => 'Critical CSS Service API Key',
+				'name'          => 'critical_css_service_key',
+				'type'          => 'password',
+				'instructions'  => 'Enter the Service API Key for the API Endpoint'
+			);
+
+			$fields[] = array(
 				'key'           => 'ucfccss_excluded_css_selectors',
 				'label'         => 'Excluded CSS Selectors',
 				'name'          => 'excluded_css_selectors',
