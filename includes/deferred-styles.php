@@ -12,10 +12,7 @@ namespace UCF\Critical_CSS\Includes\Deferred_Styles {
 	 * @return boolean
 	 */
 	function enabled_globally() {
-		return true;
-		// TODO get_field( 'enable_deferred_styles_global', 'option' ) results
-		// in a critical error with the UCF FAQ plugin for some bizarre reason
-		// return filter_var( get_field( 'enable_deferred_styles_global', 'option' ), FILTER_VALIDATE_BOOLEAN );
+		return filter_var( get_field( 'enable_deferred_styles_global', 'option' ), FILTER_VALIDATE_BOOLEAN );
 	}
 
 	/**
