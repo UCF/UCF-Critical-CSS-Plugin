@@ -66,6 +66,24 @@ namespace UCF\Critical_CSS\API {
 				return new \WP_REST_Response( $retval, 400 );
 			}
 
+			// Make sure the CSRF is valid
+			$csrf        = $data->input->args->meta->csrf ?? null;
+			$object_type = $data->input->args->meta->object_type ?? null;
+			$object_id   = $data->input->args->meta->object_id ?? null;
+
+			if ( $csrf && $object_type && $object_id ) {
+				$token = get_transient( $csrf );
+
+				if ( ! $token ||
+					$token['object_type'] !== $object_type ||
+					$token['object_id'] !== $object_id )
+				{
+					$retval['result'] = 'error';
+					$retval['message'] = 'CSRF Token failure.';
+					return new \WP_REST_Response( $retval, 403 );
+				}
+			}
+
 			// Make sure we were actually sent CSS
 			if ( $data->result === null ) {
 				$retval['result'] = 'error';
@@ -73,10 +91,6 @@ namespace UCF\Critical_CSS\API {
 
 				return new \WP_REST_Response( $retval, 400 );
 			}
-
-			// Make sure we know where to write it to
-			$object_type = $data->input->args->meta->object_type;
-			$object_id = $data->input->args->meta->object_id;
 
 			$success = false;
 

@@ -61,6 +61,12 @@ namespace UCF\Critical_CSS\Admin {
 				'object_id'    => $is_term ? $object->term_id : $object->ID
 			);
 
+			$transient_key = 'ucfccss_csrf__' . md5( "{$meta['object_type']}__{$meta['object_id']}" );
+
+			$meta['csrf'] = $transient_key;
+
+			set_transient( $transient_key, $meta, 1200 );
+
 			/**
 			 * If the HTML is more than 64kb, set it to null. The URL will be
 			 * used instead for the critical process.
@@ -71,10 +77,20 @@ namespace UCF\Critical_CSS\Admin {
 
 			$request_body = self::build_critical_css_request( $html, $url, $meta );
 			$request_url = get_field( 'critical_css_service_url', 'option' );
+			$request_key = get_field( 'critical_css_service_key', 'option' );
 
-			$response = wp_remote_post( $request_url, array(
+			$request_args = array(
 				'body' => $request_body
-			) );
+			);
+
+			// Add the request_key if one exists
+			if ( ! empty( $request_key ) ) {
+				$request_args['headers'] = array(
+					'x-functions-key' => $request_key
+				);
+			}
+
+			$response = wp_remote_post( $request_url, $request_args );
 
 			if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
 				error_log( 'Failed to enqueue critical css request' );
