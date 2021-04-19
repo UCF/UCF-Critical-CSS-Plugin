@@ -45,6 +45,7 @@ namespace UCF\Critical_CSS\Admin {
 			 */
 			$fields[] = array(
 				'key'           => 'ucfccss_general_settings_tab',
+				'name'          => '',
 				'label'         => 'General Settings',
 				'type'          => 'tab'
 			);
@@ -191,6 +192,7 @@ namespace UCF\Critical_CSS\Admin {
 			 */
 			$fields[] = array(
 				'key'           => 'ucfccss_critical_css_tab',
+				'name'          => 'name',
 				'label'         => 'Critical CSS Generation',
 				'type'          => 'tab'
 			);
