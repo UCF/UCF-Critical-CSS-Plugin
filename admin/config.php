@@ -192,7 +192,7 @@ namespace UCF\Critical_CSS\Admin {
 			 */
 			$fields[] = array(
 				'key'           => 'ucfccss_critical_css_tab',
-				'name'          => 'name',
+				'name'          => '',
 				'label'         => 'Critical CSS Generation',
 				'type'          => 'tab'
 			);
