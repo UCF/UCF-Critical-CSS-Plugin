@@ -72,7 +72,7 @@ namespace UCF\Critical_CSS\Admin {
 				'instructions'  => 'Select the type of rule to create',
 				'choices'       => array(
 					'individual' => 'Individual Page CSS',
-					'template'   => 'Template Based CSS'
+					'shared'     => 'Shared Template Critical CSS'
 				),
 				'allow_null'    => 0,
 				'multiple'      => 0
@@ -166,7 +166,7 @@ namespace UCF\Critical_CSS\Admin {
 			$fields[] = array(
 				'key'           => 'ucfccss_deferred_rules',
 				'label'         => 'Deferred Rules',
-				'name'          => 'ucfccss_deferred_rules',
+				'name'          => 'deferred_rules',
 				'type'          => 'repeater',
 				'instructions'  => 'The following rules determine when CSS will be deferred and critical CSS generated and inserted, when that feature is active.',
 				'sub_fields'    => $deferred_rules_subfields,
@@ -175,32 +175,6 @@ namespace UCF\Critical_CSS\Admin {
 				'max'           => 10,
 				'layout'        => 'row',
 				'button_label'  => 'Add Rule',
-			);
-
-			$fields[] = array(
-				'key'           => 'ucfccss_allowed_post_types',
-				'label'         => 'Allowed Post Types',
-				'name'          => 'allowed_post_types',
-				'type'          => 'select',
-				'instructions'  => 'Choose the post types for which styles should be deferred.',
-				'choices'       => self::post_types_as_options(),
-				'allow_null'    => 0,
-				'multiple'      => 1,
-				'ui'            => 1,
-				'ajax'          => 1
-			);
-
-			$fields[] = array(
-				'key'           => 'ucfccss_allowed_taxonomies',
-				'label'         => 'Allowed Taxonomies',
-				'name'          => 'allowed_taxonomies',
-				'type'          => 'select',
-				'instructions'  => 'Choose the taxonomies that allow critical CSS generation.',
-				'choices'       => self::taxonomies_as_options(),
-				'allow_null'    => 0,
-				'multiple'      => 1,
-				'ui'            => 1,
-				'ajax'          => 1
 			);
 
 			$fields[] = array(
