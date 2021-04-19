@@ -171,6 +171,8 @@ namespace UCF\Critical_CSS\Admin {
 
 			$rules = get_field( 'ucfccss_deferred_rules', 'option' );
 
+			if ( ! is_array( $rules ) ) return null;
+
 			foreach( $rules as $rule ) {
 				if ( $rule['rule_type'] === 'individual' ) {
 					if ( $rule['object_type'] === 'post_type' ) {
