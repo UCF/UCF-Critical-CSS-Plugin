@@ -34,7 +34,7 @@ namespace UCF\Critical_CSS\Includes\Deferred_Styles {
 
 		if ( $critical_css ) {
 			$exclude_option = get_field( 'deferred_exceptions', 'option' );
-			$exclude = $exclude_option ? array_filter( array_map( 'trim', explode( '\n', $exclude_option ) ) ) : array();
+			$exclude = $exclude_option ? array_filter( array_map( 'trim', explode( "\n", $exclude_option ) ) ) : array();
 
 			if ( ! in_array( $handle, $exclude ) && $media !== 'print' ) {
 				$media_replaced = str_replace( 'media=\'' . $media . '\'', 'media=\'print\' onload=\'this.media="' . $media . '"\'', $html );
