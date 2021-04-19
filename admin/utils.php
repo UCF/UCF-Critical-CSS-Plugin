@@ -13,7 +13,11 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_save_post( $post_id, $post ) {
-			self::request_object_critical_css( $post );
+			$match = self::get_matching_rule( $post );
+
+			if ( $match && $match['object_type'] === 'post_meta' ) {
+				self::request_object_critical_css( $post );
+			}
 		}
 
 		/**
@@ -24,7 +28,11 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_edit_taxonomy( $term_id, $term ) {
-			self::request_object_critical_css( $term, true );
+			$match = self::get_matching_rule( $term );
+
+			if ( $match && $match['object_type'] === 'term_meta' ) {
+				self::request_object_critical_css( $term, true );
+			}
 		}
 
 		/**
@@ -138,7 +146,8 @@ namespace UCF\Critical_CSS\Admin {
 		}
 
 		/**
-		 * Get an array of the rules, categorized by types
+		 * Get an unordered array of the rules, categorized by types
+		 * NOTE: Do not use this function is the order of the rules matters
 		 * @author Jim Barnes
 		 * @since 0.1.0
 		 * @param string $subset Returns a subset of `individual` or `shared` settings.
@@ -193,7 +202,9 @@ namespace UCF\Critical_CSS\Admin {
 
 				foreach( $retval as $subset => $values ) {
 					if ( isset( $values[$object_type] ) ) {
-						array_push( $collapsed_retval, $values[$object_type] );
+						foreach( $values[$object_type] as $value ) {
+							$collapsed_retval[] = $value;
+						}
 					}
 				}
 
@@ -216,29 +227,33 @@ namespace UCF\Critical_CSS\Admin {
 			$taxonomy = ! $is_post ? $object->taxonomy : null;
 			$template = $is_post ? get_page_template_slug( $object->ID ) : null;
 
-			$rules = self::get_critical_css_rules();
+			/**
+			 * It's very important we get the rules directly from ACF
+			 * so that the order of the rules is maintained!
+			 */
+			$rules = get_field( 'ucfccss_deferred_rules', 'option' );
 
-			foreach( $rules as $rule_type => $rule ) {
+			foreach( $rules as $rule ) {
 				// Handle individual and shared first
 				if ( $is_post && in_array( $post_type, $rule['post_types'] ) ) {
-					if ( $rule_type === 'individual' ) {
+					if ( $rule['rule_type'] === 'individual' ) {
 						return array(
 							'object_type' => 'post_meta',
 							'object_name' => 'object_critical_css'
 						);
-					} else if ( $rule_type === 'shared' ) {
+					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
 							'object_type' => 'transient',
 							'object_name' => "ucfccss_post_type_{$post_type}_critical_css"
 						);
 					}
 				} else if ( ! $is_post && in_array( $taxonomy, $rule['taxonomies'] ) ) {
-					if ( $rule_type === 'individual' ) {
+					if ( $rule['rule_type'] === 'individual' ) {
 						return array(
 							'object_type' => 'term_meta',
 							'object_name' => 'object_critical_css'
 						);
-					} else if ( $rule_type === 'shared' ) {
+					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
 							'object_type' => 'transient',
 							'object_name' => "ucfccss_taxonomy_{$taxonomy}_critical_css"
@@ -247,12 +262,12 @@ namespace UCF\Critical_CSS\Admin {
 				}
 
 				if ( $is_post && in_array( $template, $rule['templates'] ) ) {
-					if ( $rule_type === 'individual' ) {
+					if ( $rule['rule_type'] === 'individual' ) {
 						return array(
 							'object_type' => 'post_meta',
 							'object_name' => 'object_critical_css'
 						);
-					} else if ( $rule_type === 'shared' ) {
+					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
 							'object_type' => 'transient',
 							'object_name' => "ucfccss_template_{$template}_critical_css"

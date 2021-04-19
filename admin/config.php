@@ -166,7 +166,7 @@ namespace UCF\Critical_CSS\Admin {
 			$fields[] = array(
 				'key'           => 'ucfccss_deferred_rules',
 				'label'         => 'Deferred Rules',
-				'name'          => 'deferred_rules',
+				'name'          => 'ucfccss_deferred_rules',
 				'type'          => 'repeater',
 				'instructions'  => 'The following rules determine when CSS will be deferred and critical CSS generated and inserted, when that feature is active.',
 				'sub_fields'    => $deferred_rules_subfields,
@@ -175,6 +175,7 @@ namespace UCF\Critical_CSS\Admin {
 				'max'           => 10,
 				'layout'        => 'row',
 				'button_label'  => 'Add Rule',
+				''
 			);
 
 			$fields[] = array(
@@ -351,7 +352,7 @@ link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 			foreach( self::post_types_as_options() as $post_type => $post_type_label ) {
 				$templates = wp_get_theme()->get_page_templates( null, $post_type );
 
-				foreach( $templates as $template_name => $template_filename ) {
+				foreach( $templates as $template_filename => $template_name ) {
 					$retval[$template_filename] = $template_name;
 				}
 			}
@@ -374,6 +375,54 @@ link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 			</div>
 		<?php
 			echo ob_get_clean();
+		}
+
+		/**
+		 * Helper function to clean up old values in the deferred rules field
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param string The ID of the post being saved.
+		 * @return void
+		 */
+		public static function clean_deferred_rules( $post_id ) {
+			if ( $post_id !== 'options' ) return;
+
+			$rules = get_field( 'ucfccss_deferred_rules', 'option' );
+
+			// These are not the fields we're looking for...
+			if ( ! $rules ) return;
+
+			foreach( $rules as $idx => $rule ) {
+				switch( $rule['object_type'] ) {
+					case 'post_type':
+						if ( get_option( "options_ucfccss_deferred_rules_{$idx}_taxonomies" , null) !== null ) {
+							delete_option( "options_ucfccss_deferred_rules_{$idx}_taxonomies" );
+							delete_option( "_options_ucfccss_deferred_rules_{$idx}_taxonomies" );
+						} else if ( get_option( "options_ucfccss_deferred_rules_{$idx}_templates", null ) !== null ) {
+							delete_option( "options_ucfccss_deferred_rules_{$idx}_templates" );
+							delete_option( "_options_ucfccss_deferred_rules_{$idx}_templates" );
+						}
+						break;
+					case 'taxonomy':
+						if ( get_option( "options_ucfccss_deferred_rules_{$idx}_post_types", null ) === null ) {
+							delete_option( "options_ucfccss_deferred_rules_{$idx}_post_types" );
+							delete_option( "_options_ucfccss_deferred_rules_{$idx}_post_types" );
+						} else if ( get_option( "options_ucfccss_deferred_rules_{$idx}_templates", null ) !== null ) {
+							delete_option( "options_ucfccss_deferred_rules_{$idx}_templates" );
+							delete_option( "_options_ucfccss_deferred_rules_{$idx}_templates" );
+						}
+						break;
+					case 'template':
+						if ( get_option( "options_ucfccss_deferred_rules_{$idx}_post_types", null ) !== null ) {
+							delete_option( "options_ucfccss_deferred_rules_{$idx}_post_types" );
+							delete_option( "_options_ucfccss_deferred_rules_{$idx}_post_types" );
+						} else if ( get_option( "options_ucfccss_deferred_rules_{$idx}_taxonomies", null ) !== null ) {
+							delete_option( "options_ucfccss_deferred_rules_{$idx}_taxonomies" );
+							delete_option( "_options_ucfccss_deferred_rules_{$idx}_taxonomies" );
+						}
+						break;
+				}
+			}
 		}
 	}
 }
