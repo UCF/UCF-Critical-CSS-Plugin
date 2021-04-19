@@ -237,7 +237,7 @@ namespace UCF\Critical_CSS\Admin {
 
 			foreach( $rules as $rule ) {
 				// Handle individual and shared first
-				if ( $is_post && in_array( $post_type, $rule['post_types'] ) ) {
+				if ( $is_post && isset( $rule['post_types'] ) && in_array( $post_type, $rule['post_types'] ) ) {
 					if ( $rule['rule_type'] === 'individual' ) {
 						return array(
 							'object_type' => 'post_meta',
@@ -249,7 +249,7 @@ namespace UCF\Critical_CSS\Admin {
 							'object_name' => "ucfccss_post_type_{$post_type}_critical_css"
 						);
 					}
-				} else if ( ! $is_post && in_array( $taxonomy, $rule['taxonomies'] ) ) {
+				} else if ( ! $is_post && isset( $rule['taxonomies'] ) && in_array( $taxonomy, $rule['taxonomies'] ) ) {
 					if ( $rule['rule_type'] === 'individual' ) {
 						return array(
 							'object_type' => 'term_meta',
@@ -263,7 +263,7 @@ namespace UCF\Critical_CSS\Admin {
 					}
 				}
 
-				if ( $is_post && in_array( $template, $rule['templates'] ) ) {
+				if ( $is_post && isset( $rule['templates'] ) && in_array( $template, $rule['templates'] ) ) {
 					if ( $rule['rule_type'] === 'individual' ) {
 						return array(
 							'object_type' => 'post_meta',
