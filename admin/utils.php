@@ -13,7 +13,11 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_save_post( $post_id, $post ) {
-			self::request_object_critical_css( $post );
+			$match = self::get_matching_rule( $post );
+
+			if ( $match && $match['object_type'] === 'post_meta' ) {
+				self::request_object_critical_css( $post );
+			}
 		}
 
 		/**
@@ -24,7 +28,11 @@ namespace UCF\Critical_CSS\Admin {
 		 * @param WP_Post $post The post object
 		 */
 		public static function on_edit_taxonomy( $term_id, $term ) {
-			self::request_object_critical_css( $term, true );
+			$match = self::get_matching_rule( $term );
+
+			if ( $match && $match['object_type'] === 'term_meta' ) {
+				self::request_object_critical_css( $term, true );
+			}
 		}
 
 		/**
@@ -135,6 +143,140 @@ namespace UCF\Critical_CSS\Admin {
 			$retval = json_encode( $retval );
 
 			return $retval;
+		}
+
+		/**
+		 * Get an unordered array of the rules, categorized by types
+		 * NOTE: Do not use this function is the order of the rules matters
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param string $subset Returns a subset of `individual` or `shared` settings.
+		 * @param string $object_type Returns a 1-dimensional array of the $object_types in both
+		 * 							  the individual and shared rules.
+		 * @return array
+		 */
+		public static function get_critical_css_rules( $subset = null, $object_type = null ) {
+			$retval = array(
+				'individual' => array(
+					'post_types' => array(),
+					'taxonomies' => array(),
+					'templates'  => array()
+				),
+				'shared'     => array(
+					'post_types' => array(),
+					'taxonomies' => array(),
+					'templates'  => array()
+				)
+			);
+
+			$rules = get_field( 'ucfccss_deferred_rules', 'option' );
+
+			foreach( $rules as $rule ) {
+				if ( $rule['rule_type'] === 'individual' ) {
+					if ( $rule['object_type'] === 'post_type' ) {
+						$retval['individual']['post_types'] += array_values( $rule['post_types'] );
+					} else if ( $rule['object_type'] === 'taxonomy' ) {
+						$retval['individual']['taxonomies'] += array_values( $rule['taxonomies'] );
+					} else if ( $rule['object_type'] === 'template' ) {
+						$retval['individual']['templates'] += array_values( $rule['templates'] );
+					}
+				} else if ( $rule['rule_type'] === 'shared' ) {
+					if ( $rule['object_type'] === 'post_type' ) {
+						$retval['shared']['post_types'] += array_values( $rule['post_types'] );
+					} else if ( $rule['object_type'] === 'taxonomy' ) {
+						$retval['shared']['taxonomies'] += array_values( $rule['taxonomies'] );
+					} else if ( $rule['object_type'] === 'template' ) {
+						$retval['shared']['templates'] += array_values( $rule['templates'] );
+					}
+				}
+			}
+
+			// Pull out only individual or shared results
+			if ( $subset && isset( $retval[$subset] ) ) {
+				$retval = $retval[$subset];
+			}
+
+			// Pull out only post_types, taxonomies or templates
+			if ( $object_type ) {
+				$collapsed_retval = array();
+
+				foreach( $retval as $subset => $values ) {
+					if ( isset( $values[$object_type] ) ) {
+						foreach( $values[$object_type] as $value ) {
+							$collapsed_retval[] = $value;
+						}
+					}
+				}
+
+				$retval = $collapsed_retval;
+			}
+
+			return $retval;
+		}
+
+		/**
+		 * Returns the matching Critical CSS Rule
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param WP_Post|WP_Term The object to test
+		 * @return array|bool An array which includes the rule info. Returns false if no rule found.
+		 */
+		public static function get_matching_rule( $object ) {
+			$is_post = is_a( $object, 'WP_Post' );
+			$post_type = $is_post ? $object->post_type : null;
+			$taxonomy = ! $is_post ? $object->taxonomy : null;
+			$template = $is_post ? get_page_template_slug( $object->ID ) : null;
+
+			/**
+			 * It's very important we get the rules directly from ACF
+			 * so that the order of the rules is maintained!
+			 */
+			$rules = get_field( 'ucfccss_deferred_rules', 'option' );
+
+			foreach( $rules as $rule ) {
+				// Handle individual and shared first
+				if ( $is_post && in_array( $post_type, $rule['post_types'] ) ) {
+					if ( $rule['rule_type'] === 'individual' ) {
+						return array(
+							'object_type' => 'post_meta',
+							'object_name' => 'object_critical_css'
+						);
+					} else if ( $rule['rule_type'] === 'shared' ) {
+						return array(
+							'object_type' => 'transient',
+							'object_name' => "ucfccss_post_type_{$post_type}_critical_css"
+						);
+					}
+				} else if ( ! $is_post && in_array( $taxonomy, $rule['taxonomies'] ) ) {
+					if ( $rule['rule_type'] === 'individual' ) {
+						return array(
+							'object_type' => 'term_meta',
+							'object_name' => 'object_critical_css'
+						);
+					} else if ( $rule['rule_type'] === 'shared' ) {
+						return array(
+							'object_type' => 'transient',
+							'object_name' => "ucfccss_taxonomy_{$taxonomy}_critical_css"
+						);
+					}
+				}
+
+				if ( $is_post && in_array( $template, $rule['templates'] ) ) {
+					if ( $rule['rule_type'] === 'individual' ) {
+						return array(
+							'object_type' => 'post_meta',
+							'object_name' => 'object_critical_css'
+						);
+					} else if ( $rule['rule_type'] === 'shared' ) {
+						return array(
+							'object_type' => 'transient',
+							'object_name' => "ucfccss_template_{$template}_critical_css"
+						);
+					}
+				}
+			}
+
+			return false;
 		}
 	}
 }

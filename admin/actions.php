@@ -12,7 +12,7 @@ namespace UCF\Critical_CSS\Admin {
 		 * @return void
 		 */
 		public static function save_post_actions() {
-			$enabled_post_types = get_field( 'allowed_post_types', 'option' );
+			$enabled_post_types = Utilities::get_critical_css_rules( null, 'post_types' );
 			$generate = get_field( 'enable_critical_css_generation', 'option' );
 
 			if ( ! $enabled_post_types || $generate === false ) return;
@@ -30,7 +30,7 @@ namespace UCF\Critical_CSS\Admin {
 		 * @return void
 		 */
 		 public static function edit_term_actions() {
-			$enabled_taxonomies = get_field( 'allowed_taxonomies', 'option' );
+			$enabled_taxonomies = Utilities::get_critical_css_rules( null, 'taxonomies' );
 			$generate = get_field( 'enable_critical_css_generation', 'option' );
 
 			if ( ! $enabled_taxonomies || $generate === false ) return;

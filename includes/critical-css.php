@@ -1,6 +1,8 @@
 <?php
 namespace UCF\Critical_CSS\Includes\Critical_CSS {
 
+	use UCF\Critical_CSS\Admin;
+
 	/**
 	 * Returns stored critical CSS to utilize for the provided
 	 * post/term object.
@@ -17,11 +19,21 @@ namespace UCF\Critical_CSS\Includes\Critical_CSS {
 		}
 		if ( ! $obj ) return '';
 
-		// TODO will need to add some logic here that determines
-		// if generic post/term template critical CSS should be
-		// returned instead of object-specific critical CSS
+		$match = Admin\Utilities::get_matching_rule( $obj );
 
-		return get_field( 'object_critical_css', $obj );
+		if ( $match ) {
+			switch( $match['object_type'] ) {
+				case 'post_meta':
+					return get_post_meta( $obj->ID, $match['object_name'] );
+				case 'term_meta':
+					return get_term_meta( $obj->term_id, $match['object_name'] );
+				case 'transient':
+					// TODO: Add in logic for generating the transient when it expires.
+					return get_transient( $match['object_name'] );
+			}
+		}
+
+		return '';
 	}
 
 	/**
