@@ -38,7 +38,7 @@ namespace UCF\Critical_CSS {
 	 * @return void
 	 */
 	function plugin_init() {
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 10, 0 );
+		add_action( 'acf/init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 10, 0 );
 		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 20, 1 );
 
 		// Register our dynamic filters and actions
@@ -51,8 +51,24 @@ namespace UCF\Critical_CSS {
 			add_action( 'wp_head', 'UCF\Critical_CSS\Includes\Critical_CSS\insert_in_head', 1 );
 			add_action( 'style_loader_tag', 'UCF\Critical_CSS\Includes\Deferred_Styles\defer_enqueued_styles', 99, 4 );
 		}
+
+		add_action(
+			'acf/init',
+			array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page_fields') , 10, 0 );
+
+		add_filter(
+			'acf/load_field/key=ucfccss_deferred_rules_post_type',
+			array( 'UCF\Critical_CSS\Admin\Config', 'get_post_types_choices' ), 10, 1 );
+
+		add_filter(
+			'acf/load_field/key=ucfccss_deferred_rules_taxonomies',
+			array( 'UCF\Critical_CSS\Admin\Config', 'get_taxonomies_choices' ), 10, 1 );
+
+		add_filter(
+			'acf/load_field/key=ucfccss_deferred_rules_templates',
+			array( 'UCF\Critical_CSS\Admin\Config', 'get_templates_choices' ), 10, 1 );
 	}
 
-	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init' );
+	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init', 99, 0 );
 
 }

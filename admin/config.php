@@ -21,8 +21,6 @@ namespace UCF\Critical_CSS\Admin {
 					'redirect'    => false
 				) );
 
-				self::add_options_page_fields();
-
 			} else {
 				add_action( 'admin_notices', array( __NAMESPACE__ . '\Config', 'no_acf_admin_notice' ) );
 			}
@@ -100,7 +98,7 @@ namespace UCF\Critical_CSS\Admin {
 				'name'              => 'post_types',
 				'type'              => 'select',
 				'instructions'      => 'Choose the post types to apply this rule to',
-				'choices'           => self::post_types_as_options(),
+				'choices'           => array(),
 				'default_value'     => false,
 				'allow_null'        => 0,
 				'multiple'          => 1,
@@ -124,7 +122,7 @@ namespace UCF\Critical_CSS\Admin {
 				'type'              => 'select',
 				'instructions'      => 'Choose the taxonomies to apply this rule to',
 				'default_value'     => false,
-				'choices'           => self::taxonomies_as_options(),
+				'choices'           => array(),
 				'default_value'     => false,
 				'allow_null'        => 0,
 				'multiple'          => 1,
@@ -148,7 +146,7 @@ namespace UCF\Critical_CSS\Admin {
 				'type'              => 'select',
 				'instructions'      => 'Choose the templates to apply this rule to',
 				'default_value'     => false,
-				'choices'           => self::templates_as_options(),
+				'choices'           => array(),
 				'allow_null'        => 0,
 				'multiple'          => 1,
 				'ui'                => 1,
@@ -306,7 +304,7 @@ link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 			$retval = array();
 
 			$args = array(
-				'public' => true
+				'public'  => true
 			);
 
 			$post_types = get_post_types( $args, 'objects' );
@@ -360,6 +358,45 @@ link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 			}
 
 			return $retval;
+		}
+
+		/**
+		 * Function for setting the choices for the
+		 * ucfccss_deferred_rules_post_type field.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param array $field The ACF Field
+		 * @return array The ACF Field
+		 */
+		public static function get_post_types_choices( $field ) {
+			$field['choices'] = self::post_types_as_options();
+			return $field;
+		}
+
+		/**
+		 * Function for setting the choices for the
+		 * ucfccss_deferred_rules_taxonomies field.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param array $field The ACF Field
+		 * @return array The ACF Field
+		 */
+		public static function get_taxonomies_choices( $field ) {
+			$field['choices'] = self::taxonomies_as_options();
+			return $field;
+		}
+
+		/**
+		 * Function for setting the choices for the
+		 * ucfccss_deferred_rules_templates field.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param array $field The ACF Field
+		 * @return array The ACF Field
+		 */
+		public static function get_templates_choices( $field ) {
+			$field['choices'] = self::templates_as_options();
+			return $field;
 		}
 
 		/**
