@@ -10,6 +10,8 @@ GitHub Plugin URI: UCF/UCF-Critical-CSS-Plugin
 
 namespace UCF\Critical_CSS {
 
+	use UCF\Critical_CSS\Includes\Deferred_Styles;
+
 	if ( ! defined( 'WPINC' ) ) {
 		die;
 	}
@@ -25,6 +27,9 @@ namespace UCF\Critical_CSS {
 
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'api/api.php';
 
+	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/critical-css.php';
+	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/deferred-styles.php';
+
 	/**
 	 * Main entry function for the plugin.
 	 * All actions and filters should be registered here
@@ -33,15 +38,21 @@ namespace UCF\Critical_CSS {
 	 * @return void
 	 */
 	function plugin_init() {
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 20, 0 );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 10, 0 );
+		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 20, 1 );
 
 		// Register our dynamic filters and actions
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ) );
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'edit_term_actions' ) );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ), 10, 0 );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'edit_term_actions' ), 10, 0 );
 
 		add_action( 'rest_api_init', array( 'UCF\Critical_CSS\API\Critical_CSS_API', 'register_rest_routes' ) );
 
+		if ( Deferred_Styles\enabled_globally() ) {
+			add_action( 'wp_head', 'UCF\Critical_CSS\Includes\Critical_CSS\insert_in_head', 1 );
+			add_action( 'style_loader_tag', 'UCF\Critical_CSS\Includes\Deferred_Styles\defer_enqueued_styles', 99, 4 );
+		}
 	}
 
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init' );
+
 }
