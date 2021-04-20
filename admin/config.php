@@ -21,7 +21,7 @@ namespace UCF\Critical_CSS\Admin {
 					'redirect'    => false
 				) );
 
-				add_action( 'acf/init', array( __CLASS__, 'add_options_page_fields' ) );
+				self::add_options_page_fields();
 
 			} else {
 				add_action( 'admin_notices', array( __NAMESPACE__ . '\Config', 'no_acf_admin_notice' ) );
