@@ -38,12 +38,12 @@ namespace UCF\Critical_CSS {
 	 * @return void
 	 */
 	function plugin_init() {
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 20, 0 );
-		// add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 20, 1 );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 10, 0 );
+		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 20, 1 );
 
 		// Register our dynamic filters and actions
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ), 20, 0 );
-		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'edit_term_actions' ), 20, 0 );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ), 10, 0 );
+		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'edit_term_actions' ), 10, 0 );
 
 		add_action( 'rest_api_init', array( 'UCF\Critical_CSS\API\Critical_CSS_API', 'register_rest_routes' ) );
 
