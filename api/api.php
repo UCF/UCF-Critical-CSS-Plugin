@@ -109,7 +109,9 @@ namespace UCF\Critical_CSS\API {
 			}
 
 			// Delete the transient
-			delete_transient( $csrf );
+			if ( $csrf ) {
+				delete_transient( $csrf );
+			}
 
 			if ( $success === false ) {
 				$retval['result'] = 'error';
