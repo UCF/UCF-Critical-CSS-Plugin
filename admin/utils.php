@@ -393,7 +393,7 @@ namespace UCF\Critical_CSS\Admin {
 						);
 					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
-							'object_type' => 'transient',
+							'object_type' => 'option',
 							'object_name' => "ucfccss_post_type_{$post_type}_critical_css"
 						);
 					}
@@ -405,7 +405,7 @@ namespace UCF\Critical_CSS\Admin {
 						);
 					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
-							'object_type' => 'transient',
+							'object_type' => 'option',
 							'object_name' => "ucfccss_taxonomy_{$taxonomy}_critical_css"
 						);
 					}
@@ -419,7 +419,7 @@ namespace UCF\Critical_CSS\Admin {
 						);
 					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
-							'object_type' => 'transient',
+							'object_type' => 'option',
 							'object_name' => "ucfccss_template_{$template}_critical_css"
 						);
 					}

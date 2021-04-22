@@ -1,6 +1,7 @@
 <?php
 /**
  * Utility command for refreshing critical CSS
+ * TODO: ALL THE THINGS!!!
  */
 namespace UCF\Critical_CSS\Includes\CLI {
 	use UCF\Critical_CSS\Admin;
