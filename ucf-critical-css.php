@@ -39,7 +39,7 @@ namespace UCF\Critical_CSS {
 	 */
 	function plugin_init() {
 		add_action( 'acf/init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 10, 0 );
-		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 20, 1 );
+		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 10, 1 );
 
 		// Register our dynamic filters and actions
 		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ), 10, 0 );
@@ -67,6 +67,12 @@ namespace UCF\Critical_CSS {
 		add_filter(
 			'acf/load_field/key=ucfccss_deferred_rules_templates',
 			array( 'UCF\Critical_CSS\Admin\Config', 'get_templates_choices' ), 10, 1 );
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/wp-cli.php';
+
+			\WP_CLI::add_command( 'critical-css', 'UCF\Critical_CSS\Includes\CLI\CriticalCSSCommand' );
+		}
 	}
 
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init', 99, 0 );

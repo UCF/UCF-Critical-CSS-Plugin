@@ -36,6 +36,112 @@ namespace UCF\Critical_CSS\Admin {
 		}
 
 		/**
+		 * Loops through the critical CSS rules and makes requests
+		 * for any shared critical CSS values that need to be refreshed.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @return void
+		 */
+		public static function update_shared_critical_css() {
+			$now = time();
+			$rules = get_field( 'ucfccss_deferred_rules', 'option' );
+
+			$value_key_lookup = array(
+				'post_type' => 'post_types',
+				'taxonomy'  => 'taxonomies',
+				'template'  => 'templates'
+			);
+
+			foreach( $rules as $rule ) {
+				if ( $rule['rule_type'] === 'shared' ) {
+
+					$value_key = isset( $value_key_lookup[$rule['object_type']] ) ?
+						$value_key_lookup[$rule['object_type']] :
+						null;
+
+					if ( ! $value_key ) continue;
+
+					foreach( $rule[$value_key] as $value ) {
+						// Returns the name of the rule we need to check.
+						$css_object_key = self::get_shared_rule_name( $rule['object_type'], $value );
+						$css_object_exp = "{$css_object_key}_expiration";
+
+						$css = get_option( $css_object_key, null );
+						$exp = get_option( $css_object_exp, null );
+
+						if (
+							! $css ||
+							! $exp ||
+							( $css && $exp <= $now )
+						) {
+							if ( defined( 'WP_CLI' ) && WP_CLI ) {
+								\WP_CLI::log( "Generating {$css_object_key}" );
+							}
+							$object = self::get_first_object_matching_rule( $rule['object_type'], $value );
+
+							if ( $object ) {
+								$object_url = $rule['object_type'] === 'taxonomy' ?
+									get_term_link( $object ) :
+									get_permalink( $object );
+
+								self::request_shared_critical_css( $css_object_key, $object_url );
+							}
+						}
+					}
+				}
+			}
+		}
+
+		/**
+		 * Returns the option name for shared rules
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param string $object_type The object type: post_type, taxonomy or template
+		 * @param string $object_value The specific post_type, taxonomy or template
+		 */
+		public static function get_shared_rule_name( $object_type, $object_value ) {
+			return "ucfccss_{$object_type}_{$object_value}_critical_css";
+		}
+
+		/**
+		 * Returns the first post or term based on the input
+		 * parameters.
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param
+		 */
+		public static function get_first_object_matching_rule( $object_type, $object_value ) {
+			$retval = null;
+
+			if ( in_array( $object_type, array( 'post_type', 'template' ) ) ) {
+				$args = array(
+					'posts_per_page' => 1,
+				);
+
+				if ( $object_type === 'post_type' ) {
+					$args['post_type'] = $object_value;
+				} else if ( $object_type === 'template' ) {
+					$args['meta_key']   = '_wp_page_template';
+					$args['meta_value'] = $object_value;
+				}
+
+				$results = get_posts( $args );
+				$retval = count( $results ) > 0 ? $results[0] : null;
+
+			} else if ( $object_type === 'taxonomy' ) {
+				$args = array(
+					'number'   => 1,
+					'taxonomy' => $object_value
+				);
+
+				$results = get_terms( $args );
+				$retval = count( $results ) > 0 ? $results[0] : null;
+			}
+
+			return $retval;
+		}
+
+		/**
 		 * Requests critical CSS to be generated for a
 		 * post or term.
 		 * @author Jim Barnes
@@ -84,6 +190,50 @@ namespace UCF\Critical_CSS\Admin {
 			}
 
 			$request_body = self::build_critical_css_request( $html, $url, $meta );
+			$request_url = get_field( 'critical_css_service_url', 'option' );
+			$request_key = get_field( 'critical_css_service_key', 'option' );
+
+			$request_args = array(
+				'body' => $request_body
+			);
+
+			// Add the request_key if one exists
+			if ( ! empty( $request_key ) ) {
+				$request_args['headers'] = array(
+					'x-functions-key' => $request_key
+				);
+			}
+
+			$response = wp_remote_post( $request_url, $request_args );
+
+			if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
+				error_log( 'Failed to enqueue critical css request' );
+			}
+		}
+
+		/**
+		 * Generated a request to generate shared critical CSS
+		 * @author Jim Barnes
+		 * @since 0.1.0
+		 * @param string $object_key The key to use when storing the CSS
+		 * @param string $url The URL to use to generate the critical CSS
+		 * @return void
+		 */
+		public static function request_shared_critical_css( $object_key, $url ) {
+			$meta = array(
+				'response_url' => get_rest_url( null, 'ucfccss/v1/update/shared/' ), // The url of the API. Leaving blank for now.
+				'object_type'  => 'shared',
+				'object_id'    => $object_key
+			);
+
+			$transient_key = 'ucfccss_csrf__' . md5( "{$meta['object_type']}__{$meta['object_id']}" );
+
+			$meta['csrf'] = $transient_key;
+
+			set_transient( $transient_key, $meta, 1200 );
+
+			// Null html for all shared requests
+			$request_body = self::build_critical_css_request( null, $url, $meta );
 			$request_url = get_field( 'critical_css_service_url', 'option' );
 			$request_key = get_field( 'critical_css_service_key', 'option' );
 
@@ -245,7 +395,7 @@ namespace UCF\Critical_CSS\Admin {
 						);
 					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
-							'object_type' => 'transient',
+							'object_type' => 'option',
 							'object_name' => "ucfccss_post_type_{$post_type}_critical_css"
 						);
 					}
@@ -257,7 +407,7 @@ namespace UCF\Critical_CSS\Admin {
 						);
 					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
-							'object_type' => 'transient',
+							'object_type' => 'option',
 							'object_name' => "ucfccss_taxonomy_{$taxonomy}_critical_css"
 						);
 					}
@@ -271,7 +421,7 @@ namespace UCF\Critical_CSS\Admin {
 						);
 					} else if ( $rule['rule_type'] === 'shared' ) {
 						return array(
-							'object_type' => 'transient',
+							'object_type' => 'option',
 							'object_name' => "ucfccss_template_{$template}_critical_css"
 						);
 					}
