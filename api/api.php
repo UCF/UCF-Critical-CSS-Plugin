@@ -164,6 +164,7 @@ namespace UCF\Critical_CSS\API {
 				{
 					$retval['result'] = 'error';
 					$retval['message'] = 'CSRF Token failure.';
+					error_log( "Failed to save $object_id due to failed CSRF" );
 					return new \WP_REST_Response( $retval, 403 );
 				}
 			}
@@ -173,20 +174,23 @@ namespace UCF\Critical_CSS\API {
 				$retval['result'] = 'error';
 				$retval['message'] = 'There was no critical css in the request';
 
+				error_log( "Failed to save $object_id due to no critical CSS in the request" );
 				return new \WP_REST_Response( $retval, 400 );
 			}
 
 			$success = false;
 
-			if ( ! get_option( $object_id ) ) {
+			$current_option = get_option( $object_id );
+
+			if ( ! $current_option ) {
 				$success = add_option( $object_id, $data->result );
 			} else {
-				$success = update_option( $object_id, $data->result );
+				$success = update_option( $object_id, $data->result ) || $current_option === $data->result;
 			}
 
 			$current_expiration = get_option( $exp_key, null );
 
-			// If we created the transient, set the expiration.
+			// If we created the option, set the expiration.
 			if ( $success && ! $current_expiration ) {
 				$success = add_option( $exp_key, $exp_time );
 			} else if ( $success && $current_expiration ) {
@@ -200,7 +204,8 @@ namespace UCF\Critical_CSS\API {
 
 			if ( $success === false ) {
 				$retval['result'] = 'error';
-				$retval['message'] = "There was an error updating the $object_type meta";
+				$retval['message'] = "There was an error updating the $object_id option";
+				error_log( "Failed to save critical CSS for $object_id" );
 				return new \WP_REST_Response( $retval, 500 );
 			}
 
