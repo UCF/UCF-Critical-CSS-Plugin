@@ -39,7 +39,7 @@ namespace UCF\Critical_CSS {
 	 */
 	function plugin_init() {
 		add_action( 'acf/init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 10, 0 );
-		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 20, 1 );
+		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 10, 1 );
 
 		// Register our dynamic filters and actions
 		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ), 10, 0 );

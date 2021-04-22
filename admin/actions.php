@@ -13,7 +13,7 @@ namespace UCF\Critical_CSS\Admin {
 		 */
 		public static function save_post_actions() {
 			$enabled_post_types = Utilities::get_critical_css_rules( null, 'post_types' );
-			$generate = filter_var( get_option( 'enable_critical_css_generation', 'option' ), FILTER_VALIDATE_BOOLEAN );
+			$generate = filter_var( get_field( 'enable_critical_css_generation', 'option' ), FILTER_VALIDATE_BOOLEAN );
 
 			if ( ! $enabled_post_types || $generate === false ) return;
 
@@ -31,7 +31,7 @@ namespace UCF\Critical_CSS\Admin {
 		 */
 		 public static function edit_term_actions() {
 			$enabled_taxonomies = Utilities::get_critical_css_rules( null, 'taxonomies' );
-			$generate = filter_var( get_option( 'enable_critical_css_generation' ), FILTER_VALIDATE_BOOLEAN );
+			$generate = filter_var( get_field( 'enable_critical_css_generation', 'option' ), FILTER_VALIDATE_BOOLEAN );
 
 			if ( ! $enabled_taxonomies || $generate === false ) return;
 
