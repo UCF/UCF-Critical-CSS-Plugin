@@ -12,7 +12,7 @@ namespace UCF\Critical_CSS\Includes\Deferred_Styles {
 	 * @return boolean
 	 */
 	function enabled_globally() {
-		return filter_var( get_field( 'enable_deferred_styles_global', 'option' ), FILTER_VALIDATE_BOOLEAN );
+		return filter_var( get_option( 'options_enable_deferred_styles_global', false ), FILTER_VALIDATE_BOOLEAN );
 	}
 
 	/**
