@@ -233,6 +233,15 @@ namespace UCF\Critical_CSS\Admin {
 link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 			);
 
+			$fields[] = array(
+				'key'           => 'ucfccss_shared_css_expiration',
+				'label'         => 'Shared Critical CSS Expiration (Minutes)',
+				'name'          => 'shared_css_expiration',
+				'type'          => 'number',
+				'instructions'  => 'The amount of time shared Critical CSS should be cached for in minutes.',
+				'default_value' => 1440 // One day
+			);
+
 			/**
 			 * Define the sub fields for the dimension repeater
 			 */
