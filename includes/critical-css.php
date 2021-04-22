@@ -27,9 +27,8 @@ namespace UCF\Critical_CSS\Includes\Critical_CSS {
 					return get_post_meta( $obj->ID, $match['object_name'], true );
 				case 'term_meta':
 					return get_term_meta( $obj->term_id, $match['object_name'], true );
-				case 'transient':
-					// TODO: Add in logic for generating the transient when it expires.
-					return get_transient( $match['object_name'] );
+				case 'option':
+					return get_option( $match['object_name'], null );
 				default:
 					break;
 			}

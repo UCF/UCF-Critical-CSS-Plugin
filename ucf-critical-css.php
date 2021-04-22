@@ -67,6 +67,12 @@ namespace UCF\Critical_CSS {
 		add_filter(
 			'acf/load_field/key=ucfccss_deferred_rules_templates',
 			array( 'UCF\Critical_CSS\Admin\Config', 'get_templates_choices' ), 10, 1 );
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/wp-cli.php';
+
+			\WP_CLI::add_command( 'critical-css', 'UCF\Critical_CSS\Includes\CLI\CriticalCSSCommand' );
+		}
 	}
 
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init', 99, 0 );
