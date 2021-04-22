@@ -74,7 +74,9 @@ namespace UCF\Critical_CSS\Admin {
 							! $exp ||
 							( $css && $exp <= $now )
 						) {
-							\WP_CLI::log( 'Generating {$css_object_key}...' );
+							if ( defined( 'WP_CLI' ) && WP_CLI ) {
+								\WP_CLI::log( "Generating {$css_object_key}" );
+							}
 							$object = self::get_first_object_matching_rule( $rule['object_type'], $value );
 
 							if ( $object ) {
