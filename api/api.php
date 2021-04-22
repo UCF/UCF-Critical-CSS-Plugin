@@ -130,7 +130,7 @@ namespace UCF\Critical_CSS\API {
 		 * @return WP_REST_Response
 		 */
 		public static function update_shared( $request ) {
-			$exp_span = get_field( 'shared_css_expiration' );
+			$exp_span = intval( get_option( 'shared_css_expiration', 1440 ) );
 			$exp_time = time() + ( $exp_span * 60 ); // Multiply by 60 to convert to seconds.
 
 			$retval = array(
