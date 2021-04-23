@@ -11,6 +11,7 @@ GitHub Plugin URI: UCF/UCF-Critical-CSS-Plugin
 namespace UCF\Critical_CSS {
 
 	use UCF\Critical_CSS\Includes\Deferred_Styles;
+	use UCF\Critical_CSS\Includes\Cron;
 
 	if ( ! defined( 'WPINC' ) ) {
 		die;
@@ -30,6 +31,19 @@ namespace UCF\Critical_CSS {
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/critical-css.php';
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/deferred-styles.php';
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/cron.php';
+
+
+	/**
+	 * Runs when the plugin is deactivated.
+	 * @author Jim Barnes
+	 * @since 0.1.0
+	 * @return void
+	 */
+	function on_deactivate() {
+		Cron\disable_cron();
+	}
+
+	register_deactivation_hook( UCF_CRITICAL_CSS__PLUGIN_FILE, __NAMESPACE__ . '\on_deactivate' );
 
 	/**
 	 * Main entry function for the plugin.
