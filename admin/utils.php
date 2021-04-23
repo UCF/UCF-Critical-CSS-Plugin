@@ -43,6 +43,10 @@ namespace UCF\Critical_CSS\Admin {
 		 * @return void
 		 */
 		public static function update_shared_critical_css() {
+			if ( defined( 'WP_DEBUG' ) and WP_DEBUG ) {
+				error_log( 'Running Shared Critical CSS Cron' );
+			}
+
 			$now = time();
 			$rules = get_field( 'ucfccss_deferred_rules', 'option' );
 
