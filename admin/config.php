@@ -242,6 +242,18 @@ link[rel=\'stylesheet\'][href^=\'//cloud.typography.com/\']'
 				'default_value' => 1440 // One day
 			);
 
+			$fields[] = array(
+				'key'           => 'ucfccss_enable_shared_css_cron',
+				'label'         => 'Enable Shared CSS Cron',
+				'name'          => 'enable_shared_css_cron',
+				'type'          => 'true_false',
+				'instructions'  => 'When enabled, an hourly cron will check to see if any shared critical CSS needs to be generated.',
+				'default_value' => 0,
+				'ui'            => 1,
+				'ui_on_text'    => 'Enabled',
+				'ui_off_text'   => 'Disabled'
+			);
+
 			/**
 			 * Define the sub fields for the dimension repeater
 			 */
