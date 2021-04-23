@@ -29,6 +29,7 @@ namespace UCF\Critical_CSS {
 
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/critical-css.php';
 	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/deferred-styles.php';
+	include_once UCF_CRITICAL_CSS__PLUGIN_DIR . 'includes/cron.php';
 
 	/**
 	 * Main entry function for the plugin.
@@ -73,6 +74,11 @@ namespace UCF\Critical_CSS {
 
 			\WP_CLI::add_command( 'critical-css', 'UCF\Critical_CSS\Includes\CLI\CriticalCSSCommand' );
 		}
+
+		// Register the hook for the cron
+		add_action( 'ucfccss_critical_css_cron', array( 'UCF\Critical_CSS\Admin\Utilities', 'update_shared_critical_css' ) );
+
+		add_action( 'init', 'UCF\Critical_CSS\Includes\Cron\register_cron', 10, 0 );
 	}
 
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init', 99, 0 );
