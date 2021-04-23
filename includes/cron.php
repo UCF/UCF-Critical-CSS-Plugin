@@ -11,6 +11,11 @@ namespace UCF\Critical_CSS\Includes\Cron {
 	 * @return void
 	 */
 	function register_cron() {
+		$screen = get_current_screen();
+
+		// Only do this logic if the save is coming from the settings page
+		if ( $screen->id !== 'settings_page_ucf-critical-css' ) return;
+
 		$schedule_cron  = get_option( 'enable_shared_css_cron', 'option' );
 		$next_timestamp = wp_next_scheduled( 'ucfccss_critical_css_cron' );
 
