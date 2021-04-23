@@ -41,6 +41,7 @@ namespace UCF\Critical_CSS {
 	function plugin_init() {
 		add_action( 'acf/init', array( 'UCF\Critical_CSS\Admin\Config', 'add_options_page' ), 10, 0 );
 		add_action( 'acf/save_post', array( 'UCF\Critical_CSS\Admin\Config', 'clean_deferred_rules' ), 10, 1 );
+		add_action( 'acf/save_post', 'UCF\Critical_CSS\Includes\Cron\register_cron', 10, 0  );
 
 		// Register our dynamic filters and actions
 		add_action( 'init', array( 'UCF\Critical_CSS\Admin\Actions', 'save_post_actions' ), 10, 0 );
@@ -77,8 +78,6 @@ namespace UCF\Critical_CSS {
 
 		// Register the hook for the cron
 		add_action( 'ucfccss_critical_css_cron', array( 'UCF\Critical_CSS\Admin\Utilities', 'update_shared_critical_css' ) );
-
-		add_action( 'init', 'UCF\Critical_CSS\Includes\Cron\register_cron', 10, 0 );
 	}
 
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\plugin_init', 99, 0 );
