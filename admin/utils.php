@@ -326,19 +326,19 @@ namespace UCF\Critical_CSS\Admin {
 			foreach( $rules as $rule ) {
 				if ( $rule['rule_type'] === 'individual' ) {
 					if ( $rule['object_type'] === 'post_type' ) {
-						$retval['individual']['post_types'] += array_values( $rule['post_types'] );
+						$retval['individual']['post_types'] = array_merge( $retval['individual']['post_types'], array_values( $rule['post_types'] ) );
 					} else if ( $rule['object_type'] === 'taxonomy' ) {
-						$retval['individual']['taxonomies'] += array_values( $rule['taxonomies'] );
+						$retval['individual']['taxonomies'] = array_merge( $retval['individual']['taxonomies'], array_values( $rule['taxonomies'] ) );
 					} else if ( $rule['object_type'] === 'template' ) {
-						$retval['individual']['templates'] += array_values( $rule['templates'] );
+						$retval['individual']['templates'] = array_merge( $retval['individual']['templates'], array_values( $rule['templates'] ) );
 					}
 				} else if ( $rule['rule_type'] === 'shared' ) {
 					if ( $rule['object_type'] === 'post_type' ) {
-						$retval['shared']['post_types'] += array_values( $rule['post_types'] );
+						$retval['shared']['post_types'] = array_merge( $retval['shared']['post_types'], array_values( $rule['post_types'] ) );
 					} else if ( $rule['object_type'] === 'taxonomy' ) {
-						$retval['shared']['taxonomies'] += array_values( $rule['taxonomies'] );
+						$retval['shared']['taxonomies'] = array_merge( $retval['shared']['taxonomies'], array_values( $rule['taxonomies'] ) );
 					} else if ( $rule['object_type'] === 'template' ) {
-						$retval['shared']['templates'] += array_values( $rule['templates'] );
+						$retval['shared']['templates'] = array_merge( $retval['shared']['templates'], array_values( $rule['templates'] ) );
 					}
 				}
 			}
