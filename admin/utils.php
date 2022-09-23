@@ -179,8 +179,7 @@ namespace UCF\Critical_CSS\Admin {
 				'object_id'    => $is_term ? $object->term_id : $object->ID
 			);
 
-			$transient_key = 'ucfccss_csrf__' . md5( "{$meta['object_type']}__{$meta['object_id']}" );
-
+			$transient_key = self::generate_transient_key( $meta['object_type'], $meta['object_id'] );
 			$meta['csrf'] = $transient_key;
 
 			set_transient( $transient_key, $meta, 1200 );
@@ -330,19 +329,19 @@ namespace UCF\Critical_CSS\Admin {
 			foreach( $rules as $rule ) {
 				if ( $rule['rule_type'] === 'individual' ) {
 					if ( $rule['object_type'] === 'post_type' ) {
-						$retval['individual']['post_types'] += array_values( $rule['post_types'] );
+						$retval['individual']['post_types'] = array_merge( $retval['individual']['post_types'], array_values( $rule['post_types'] ) );
 					} else if ( $rule['object_type'] === 'taxonomy' ) {
-						$retval['individual']['taxonomies'] += array_values( $rule['taxonomies'] );
+						$retval['individual']['taxonomies'] = array_merge( $retval['individual']['taxonomies'], array_values( $rule['taxonomies'] ) );
 					} else if ( $rule['object_type'] === 'template' ) {
-						$retval['individual']['templates'] += array_values( $rule['templates'] );
+						$retval['individual']['templates'] = array_merge( $retval['individual']['templates'], array_values( $rule['templates'] ) );
 					}
 				} else if ( $rule['rule_type'] === 'shared' ) {
 					if ( $rule['object_type'] === 'post_type' ) {
-						$retval['shared']['post_types'] += array_values( $rule['post_types'] );
+						$retval['shared']['post_types'] = array_merge( $retval['shared']['post_types'], array_values( $rule['post_types'] ) );
 					} else if ( $rule['object_type'] === 'taxonomy' ) {
-						$retval['shared']['taxonomies'] += array_values( $rule['taxonomies'] );
+						$retval['shared']['taxonomies'] = array_merge( $retval['shared']['taxonomies'], array_values( $rule['taxonomies'] ) );
 					} else if ( $rule['object_type'] === 'template' ) {
-						$retval['shared']['templates'] += array_values( $rule['templates'] );
+						$retval['shared']['templates'] = array_merge( $retval['shared']['templates'], array_values( $rule['templates'] ) );
 					}
 				}
 			}
@@ -433,6 +432,41 @@ namespace UCF\Critical_CSS\Admin {
 			}
 
 			return false;
+		}
+
+		/**
+		 * Generates a transient key for CSRF meta to be sent
+		 * to the functions app.
+		 * @author Jim Barnes
+		 * @since v1.0.0
+		 * @param string $object_type The type of object being sent
+		 * @param int $object_id The post or term ID of the object
+		 *
+		 * @return string The CSRF transient key
+		 */
+		public static function generate_transient_key( $object_type, $object_id ) {
+			$prefix = 'ucfccss_csrf__';
+			$nonce_salt = wp_salt( 'NONCE_SALT' );
+
+			$hashed = md5( "{$nonce_salt}__{$object_type}__{$object_id}" );
+
+			return "{$prefix}{$hashed}";
+		}
+
+		/**
+		 * Validates a transient key for CSRF meta received from
+		 * the functions app.
+		 * @author Jim Barnes
+		 * @since v1.0.0
+		 * @param string $key The key to validate
+		 * @param string $object_type The type of object being sent
+		 * @param int $object_id The post or term ID of the object
+		 *
+		 * @return bool True if the key is valid
+		 */
+		public static function validate_transient_key( $key, $object_type, $object_id ) {
+			$generated_value = self::generate_transient_key( $object_type, $object_id );
+			return $key === $generated_value;
 		}
 	}
 }
