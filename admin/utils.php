@@ -175,8 +175,7 @@ namespace UCF\Critical_CSS\Admin {
 				'object_id'    => $is_term ? $object->term_id : $object->ID
 			);
 
-			$transient_key = 'ucfccss_csrf__' . md5( "{$meta['object_type']}__{$meta['object_id']}" );
-
+			$transient_key = self::generate_transient_key( $meta['object_type'], $meta['object_id'] );
 			$meta['csrf'] = $transient_key;
 
 			set_transient( $transient_key, $meta, 1200 );
@@ -429,6 +428,41 @@ namespace UCF\Critical_CSS\Admin {
 			}
 
 			return false;
+		}
+
+		/**
+		 * Generates a transient key for CSRF meta to be sent
+		 * to the functions app.
+		 * @author Jim Barnes
+		 * @since v1.0.0
+		 * @param string $object_type The type of object being sent
+		 * @param int $object_id The post or term ID of the object
+		 *
+		 * @return string The CSRF transient key
+		 */
+		public static function generate_transient_key( $object_type, $object_id ) {
+			$prefix = 'ucfccss_csrf__';
+			$nonce_salt = wp_salt( 'NONCE_SALT' );
+
+			$hashed = md5( "{$nonce_salt}__{$object_type}__{$object_id}" );
+
+			return "{$prefix}{$hashed}";
+		}
+
+		/**
+		 * Validates a transient key for CSRF meta received from
+		 * the functions app.
+		 * @author Jim Barnes
+		 * @since v1.0.0
+		 * @param string $key The key to validate
+		 * @param string $object_type The type of object being sent
+		 * @param int $object_id The post or term ID of the object
+		 *
+		 * @return bool True if the key is valid
+		 */
+		public static function validate_transient_key( $key, $object_type, $object_id ) {
+			$generated_value = self::generate_transient_key( $object_type, $object_id );
+			return $key === $generated_value;
 		}
 	}
 }

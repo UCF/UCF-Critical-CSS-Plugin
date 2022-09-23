@@ -70,8 +70,13 @@ namespace UCF\Critical_CSS\API {
 			$csrf        = $data->input->args->meta->csrf ?? null;
 			$object_type = $data->input->args->meta->object_type ?? null;
 			$object_id   = $data->input->args->meta->object_id ?? null;
+			$token_valid = false;
 
-			if ( $csrf && $object_type && $object_id ) {
+			if ( $object_type && $object_id ) {
+				$token_valid = UCF\Critical_CSS\Admin\validate_transient_key( $object_type, $object_id );
+			}
+
+			if ( $csrf && $object_type && $object_id && $token_valid ) {
 				$token = get_transient( $csrf );
 
 				if ( ! $token ||
