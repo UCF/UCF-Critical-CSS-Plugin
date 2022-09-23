@@ -162,6 +162,11 @@ namespace UCF\Critical_CSS\API {
 			$object_type = $data->input->args->meta->object_type ?? null;
 			$object_id   = $data->input->args->meta->object_id ?? null;
 			$exp_key     = $object_id ? "{$object_id}_expiration" : null;
+			$token_valid = false;
+
+			if ( $object_type && $object_id ) {
+				$token_valid = \UCF\Critical_CSS\Admin\Utilities::validate_transient_key( $csrf, $object_type, $object_id );
+			}
 
 			if ( $csrf && $object_type && $object_id ) {
 				$token = get_transient( $csrf );
