@@ -1,4 +1,7 @@
 <?php
+
+
+
 namespace UCF\Critical_CSS\API {
 	/**
 	 * Provides the necessary functions for the API
@@ -73,7 +76,7 @@ namespace UCF\Critical_CSS\API {
 			$token_valid = false;
 
 			if ( $object_type && $object_id ) {
-				$token_valid = UCF\Critical_CSS\Admin\validate_transient_key( $object_type, $object_id );
+				$token_valid = \UCF\Critical_CSS\Admin\Utilities::validate_transient_key( $csrf, $object_type, $object_id );
 			}
 
 			if ( $csrf && $object_type && $object_id && $token_valid ) {
